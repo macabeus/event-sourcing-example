@@ -1,5 +1,7 @@
 use Amnesia
 
+require OK
+
 defdatabase Database do
   deftable Account, [{:id, autoincrement}, :email, :account_number, :password, :amount],
     type: :set, index: [:email, :account_number] do
@@ -60,6 +62,35 @@ defdatabase Database do
         case Amnesia.Selection.values(accounts_by_email) do
           [account] -> {:ok, account}
           [] -> {:error, {"account not found", %{email: by_email}}}
+        end
+      end
+
+      defp check_money(account, amount) do
+        case account.amount > amount do
+          true ->
+            {:ok, true}
+
+          false ->
+            {:error, {"account does not have enough money", account}}
+        end
+      end
+
+      def money_transfer(from_account_number, to_account_number, amount) do
+        OK.try do
+          from_account <- get_account(%{account_number: from_account_number})
+          true         <- check_money(from_account, amount)
+          to_account   <- get_account(%{account_number: to_account_number})
+        after
+          from_account_new_amount =
+            %{from_account | amount: from_account.amount - amount}
+            |> Account.write
+
+          %{to_account | amount: to_account.amount + amount}
+          |> Account.write
+
+          {:ok, from_account_new_amount}
+        rescue
+          err -> {:error, err}
         end
       end
   end
