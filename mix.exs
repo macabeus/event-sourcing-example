@@ -21,7 +21,8 @@ defmodule EventSourcingExample.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:amnesia, "~> 0.2.7"}
+      {:amnesia, "~> 0.2.7"},
+      {:ok, "~> 1.9"}
     ]
   end
 end
