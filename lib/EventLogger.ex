@@ -11,6 +11,19 @@ defmodule EventSourcingExample.EventLogger do
     GenServer.call(__MODULE__, {:save_event, event})
   end
 
+  def view_logs() do
+    :ets.new(:events_log_ets, [:set, :protected, :named_table])
+    :dets.to_ets(:events_log, :events_log_ets)
+
+    :observer.start
+
+    IO.puts IO.ANSI.format([
+      :green, :bright, "Observer started.\n",
+      :black, :normal, "Go to the ", :blue, "\"Table Viewer\"", :black, " and double-click on ", :blue, "\"events_log_ets\"", :black, " to seen the content.\n",
+      "When you close the Observer, remember to use ", :blue, "\":ets.delete(:events_log_ets)\"", :black, " command."
+    ])
+  end
+
   ## Server Callbacks
 
   def init(:ok) do
