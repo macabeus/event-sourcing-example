@@ -16,21 +16,21 @@ defmodule EventSourcingExample.Event do
     end
   end
 
-  def run(%NewAccount{email: email, password: password, card_number: nil} = event) do
+  def run(%NewAccount{email: email, password: password, account_number: nil} = event) do
     result = Amnesia.transaction do
       Database.Account.create_new_account(email, password)
     end
 
     with {:ok, %Database.Account{account_number: account_number}} <- result do
-      {:ok, %{event | card_number: account_number}}
+      {:ok, %{event | account_number: account_number}}
     else
       err -> err
     end
   end
 
-  def run(%NewAccount{email: email, password: password, card_number: card_number} = event) do
+  def run(%NewAccount{email: email, password: password, account_number: account_number} = event) do
     result = Amnesia.transaction do
-      Database.Account.create_new_account(email, password, card_number)
+      Database.Account.create_new_account(email, password, account_number)
     end
 
     with {:ok, _} <- result do
