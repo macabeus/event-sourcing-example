@@ -21,3 +21,6 @@ erl_crash.dump
 
 # Files generates by Mnesia
 /Mnesia.nonode@nohost/
+
+# Events logs
+events_log

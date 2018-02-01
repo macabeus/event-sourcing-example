@@ -4,21 +4,39 @@ defmodule EventSourcingExample.Event do
   alias EventSourcingExample.Event.MoneyTransfer
   alias EventSourcingExample.Event.NewAccount
 
-  def run(events) when is_list(events) do
-    Amnesia.transaction do
-      Enum.each(events, &EventSourcingExample.Event.run/1)
+  def run(%MoneyTransfer{from_account_number: from_account_number, to_account_number: to_account_number, amount: amount} = event) do
+    result = Amnesia.transaction do
+      Database.Account.money_transfer(from_account_number, to_account_number, amount)
+    end
+
+    with {:ok, _} <- result do
+      {:ok, event}
+    else
+      err -> err
     end
   end
 
-  def run(%MoneyTransfer{from_account_number: from_account_number, to_account_number: to_account_number, amount: amount}) do
-    Database.Account.money_transfer(from_account_number, to_account_number, amount)
+  def run(%NewAccount{email: email, password: password, card_number: nil} = event) do
+    result = Amnesia.transaction do
+      Database.Account.create_new_account(email, password)
+    end
+
+    with {:ok, %Database.Account{account_number: account_number}} <- result do
+      {:ok, %{event | card_number: account_number}}
+    else
+      err -> err
+    end
   end
 
-  def run(%NewAccount{email: email, password: password, card_number: card_number}) do
-    Database.Account.create_new_account(email, password, card_number)
-  end
+  def run(%NewAccount{email: email, password: password, card_number: card_number} = event) do
+    result = Amnesia.transaction do
+      Database.Account.create_new_account(email, password, card_number)
+    end
 
-  def run(%NewAccount{email: email, password: password}) do
-    Database.Account.create_new_account(email, password)
+    with {:ok, _} <- result do
+      {:ok, event}
+    else
+      err -> err
+    end
   end
 end
