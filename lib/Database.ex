@@ -31,19 +31,19 @@ defdatabase Database do
       def create_new_account(email, password, account_number) do
         # TODO: Send the e-mail to validade this account
 
-        with {:ok, _} <- get_account(%{email: email}),
-             {:ok, _} <- get_account(%{account_number: account_number})
+        with {:error, {"account not found", _}} <- get_account(%{email: email}),
+             {:error, {"account not found", _}} <- get_account(%{account_number: account_number})
         do
-          {:error, "already exists an account using this e-mail and/or account number"}
+          new_account = %Account{
+            email: email,
+            account_number: account_number,
+            password: password, amount: 1_000_00}
+          |> Account.write
+
+          {:ok, new_account}
         else
           _ ->
-            new_account = %Account{
-              email: email,
-              account_number: account_number,
-              password: password, amount: 1_000_00}
-            |> Account.write
-
-            {:ok, new_account}
+            {:error, "already exists an account using this e-mail and/or account number"}
         end
       end
 
