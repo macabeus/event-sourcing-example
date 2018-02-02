@@ -23,6 +23,10 @@ defmodule EventSourcingExample.EventResolver do
     {:ok, :state_doesnt_matter}
   end
 
+  def handle_call({:resolve_many_events, []}, _from, state) do
+    {:reply, :ok, state}
+  end
+
   def handle_call({:resolve_many_events, events}, _from, state) do
     resolve_result =
       events

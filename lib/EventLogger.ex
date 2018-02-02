@@ -46,6 +46,10 @@ defmodule EventSourcingExample.EventLogger do
     {:reply, :ok, {table, counter + 1}}
   end
 
+  def handle_call(:recover_events, _from, {_table, 0} = state) do
+    {:reply, [], state}
+  end
+
   def handle_call(:recover_events, _from, {table, counter} = state) do
     events =
       0..(counter-1)
