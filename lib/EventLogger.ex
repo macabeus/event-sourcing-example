@@ -11,6 +11,10 @@ defmodule EventSourcingExample.EventLogger do
     GenServer.call(__MODULE__, {:save_event, event})
   end
 
+  def recover_events() do
+    GenServer.call(__MODULE__, :recover_events)
+  end
+
   def view_logs() do
     :ets.new(:events_log_ets, [:set, :protected, :named_table])
     :dets.to_ets(:events_log, :events_log_ets)
@@ -40,5 +44,16 @@ defmodule EventSourcingExample.EventLogger do
     :dets.update_counter(table, "counter", 1)
 
     {:reply, :ok, {table, counter + 1}}
+  end
+
+  def handle_call(:recover_events, _from, {table, counter} = state) do
+    events =
+      0..(counter-1)
+      |> Enum.map(fn i ->
+        [{_, event}] = :dets.lookup(table, i)
+        event
+      end)
+
+    {:reply, events, state}
   end
 end
