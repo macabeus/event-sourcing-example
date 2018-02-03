@@ -3,6 +3,7 @@ defmodule EventSourcingExample.Event do
 
   alias EventSourcingExample.Event.MoneyTransfer
   alias EventSourcingExample.Event.NewAccount
+  alias EventSourcingExample.Event.VerifyAccount
 
   def run(%MoneyTransfer{from_account_number: from_account_number, to_account_number: to_account_number, amount: amount} = event) do
     result = Amnesia.transaction do
@@ -37,6 +38,19 @@ defmodule EventSourcingExample.Event do
       {:ok, event}
     else
       err -> err
+    end
+  end
+
+  def run(%VerifyAccount{account_number: account_number} = event) do
+    Amnesia.transaction do
+      case Database.Account.get_account(%{account_number: account_number}) do
+        {:ok, account} ->
+          Database.Account.verify_account(account)
+          {:ok, event}
+
+        err ->
+          err
+      end
     end
   end
 end

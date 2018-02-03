@@ -3,14 +3,15 @@ use Amnesia
 require OK
 
 defdatabase Database do
-  deftable Account, [{:id, autoincrement}, :email, :account_number, :password, :amount],
+  deftable Account, [{:id, autoincrement}, :email, :account_number, :password, :amount, :verified],
     type: :set, index: [:email, :account_number] do
       @type t :: %Account{
         id: non_neg_integer,
         email: String.t,
         account_number: String.t,
         password: String.t,
-        amount: integer
+        amount: integer,
+        verified: boolean
       }
 
       defp generate_unique_account_number() do
@@ -37,7 +38,9 @@ defdatabase Database do
           new_account = %Account{
             email: email,
             account_number: account_number,
-            password: password, amount: 1_000_00}
+            password: password,
+            amount: 1_000_00,
+            verified: false}
           |> Account.write
 
           {:ok, new_account}
@@ -45,6 +48,14 @@ defdatabase Database do
           _ ->
             {:error, "already exists an account using this e-mail and/or account number"}
         end
+      end
+
+      def verify_account(account) do
+        verified_account =
+          %{account | verified: true}
+          |> Account.write
+
+        {:ok, verified_account}
       end
 
       def get_account(%{account_number: by_account_number}) do
@@ -65,6 +76,16 @@ defdatabase Database do
         end
       end
 
+      defp check_verified(account) do
+        case account.verified do
+          true ->
+            {:ok, true}
+
+          false ->
+            {:error, {"account not verified", account}}
+        end
+      end
+
       defp check_money(account, amount) do
         case account.amount > amount do
           true ->
@@ -80,6 +101,8 @@ defdatabase Database do
           from_account <- get_account(%{account_number: from_account_number})
           true         <- check_money(from_account, amount)
           to_account   <- get_account(%{account_number: to_account_number})
+          true         <- check_verified(from_account)
+          true         <- check_verified(to_account)
         after
           from_account_new_amount =
             %{from_account | amount: from_account.amount - amount}
