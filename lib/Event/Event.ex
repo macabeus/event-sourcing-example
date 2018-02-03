@@ -4,6 +4,7 @@ defmodule EventSourcingExample.Event do
   alias EventSourcingExample.Event.MoneyTransfer
   alias EventSourcingExample.Event.NewAccount
   alias EventSourcingExample.Event.VerifyAccount
+  alias EventSourcingExample.Event.Withdraw
 
   def run(%MoneyTransfer{from_account_number: from_account_number, to_account_number: to_account_number, amount: amount} = event) do
     result = Amnesia.transaction do
@@ -55,6 +56,18 @@ defmodule EventSourcingExample.Event do
 
         err ->
           err
+      end
+    end
+  end
+
+  def run(%Withdraw{account_number: account_number, amount: amount} = event) do
+    Amnesia.transaction do
+      with {:ok, account} <- Database.Account.get_account(%{account_number: account_number}),
+           {:ok, _}       <- Database.Account.withdraw(account, amount)
+      do
+        {:ok, event}
+      else
+        err -> err
       end
     end
   end

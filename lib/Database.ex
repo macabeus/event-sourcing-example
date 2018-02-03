@@ -128,6 +128,20 @@ defdatabase Database do
           err -> {:error, err}
         end
       end
+
+      def withdraw(account, amount) do
+        with {:ok, true} <- check_money(account, amount),
+             {:ok, true} <- check_verified(account)
+        do
+          account_new_amount =
+            %{account | amount: account.amount - amount}
+            |> Account.write
+
+          {:ok, account_new_amount}
+        else
+          err -> err
+        end
+      end
   end
 
   deftable VerifyCode, [{:id, autoincrement}, :account_id, :code],
