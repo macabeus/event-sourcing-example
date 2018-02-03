@@ -49,13 +49,12 @@ defmodule EventSourcingExample.Event do
 
   def run(%VerifyAccount{account_number: account_number, code: code} = event) do
     Amnesia.transaction do
-      case Database.Account.get_account(%{account_number: account_number}) do
-        {:ok, account} ->
-          Database.Account.verify_account(account, code)
-          {:ok, event}
-
-        err ->
-          err
+      with {:ok, account} <- Database.Account.get_account(%{account_number: account_number}),
+           {:ok, _}       <- Database.Account.verify_account(account, code)
+      do
+        {:ok, event}
+      else
+        err -> err
       end
     end
   end
