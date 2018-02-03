@@ -14,7 +14,7 @@ defmodule EventSourcingExample.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :bamboo],
       mod: {EventSourcingExample, []}
     ]
   end
@@ -24,6 +24,7 @@ defmodule EventSourcingExample.Mixfile do
     [
       {:amnesia, "~> 0.2.7"},
       {:ok, "~> 1.9"},
+      {:bamboo, "~> 0.8"},
       {:secure_random, "~> 0.5"}
     ]
   end
