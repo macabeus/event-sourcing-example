@@ -3,6 +3,7 @@ defmodule EventSourcingExample.Bus do
 
   alias EventSourcingExample.EventResolver
   alias EventSourcingExample.EventLogger
+  alias EventSourcingExample.Mail
 
   ## Client API
 
@@ -24,6 +25,10 @@ defmodule EventSourcingExample.Bus do
     with {:ok, event_result} <- EventResolver.resolve(event) do
       if (Enum.member?(opts, :do_not_log) == false) do
         EventLogger.save_event(event_result)
+      end
+
+      if (Enum.member?(opts, :do_not_send_email) == false) do
+        Mail.send_email_if_need(event_result)
       end
 
       {:ok, event_result}

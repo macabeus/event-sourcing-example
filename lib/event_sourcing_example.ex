@@ -2,7 +2,6 @@ defmodule EventSourcingExample do
   use Application
 
   alias EventSourcingExample.Supervisor
-  alias EventSourcingExample.EventResolver
   alias EventSourcingExample.EventLogger
   alias EventSourcingExample.Bus
 
@@ -12,7 +11,7 @@ defmodule EventSourcingExample do
     # Recover the past state of application
     resolve_result =
       EventLogger.recover_events()
-      |> Bus.forward_event([:do_not_log])
+      |> Bus.forward_event([:do_not_log, :do_not_send_email])
 
     case resolve_result do
       :ok ->

@@ -9,6 +9,7 @@ defmodule EventSourcingExample.Supervisor do
     children = [
       {EventSourcingExample.EventResolver, name: EventSourcingExample.EventResolver},
       {EventSourcingExample.EventLogger, name: EventSourcingExample.EventLogger},
+      {EventSourcingExample.Mail, name: EventSourcingExample.Mail},
       {EventSourcingExample.Bus, name: EventSourcingExample.Bus}
     ]
 
