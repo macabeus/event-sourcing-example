@@ -1,5 +1,7 @@
 use Amnesia
 
+import SecureRandom
+
 require OK
 
 defdatabase Database do
@@ -29,7 +31,7 @@ defdatabase Database do
         create_new_account(email, password, account_number)
       end
 
-      def create_new_account(email, password, account_number) do
+      def create_new_account(email, password, account_number, verify_code \\ nil) do
         # TODO: Send the e-mail to validade this account
 
         with {:error, {"account not found", _}} <- get_account(%{email: email}),
@@ -43,19 +45,29 @@ defdatabase Database do
             verified: false}
           |> Account.write
 
-          {:ok, new_account}
+          new_verify_code = Database.VerifyCode.new_record(new_account, verify_code)
+
+          {:ok, {new_account, new_verify_code}}
         else
           _ ->
             {:error, "already exists an account using this e-mail and/or account number"}
         end
       end
 
-      def verify_account(account) do
-        verified_account =
-          %{account | verified: true}
-          |> Account.write
+      def verify_account(account, code) do
+        case code == Database.VerifyCode.get_code_by_account(account) do
+          true ->
+            verified_account =
+              %{account | verified: true}
+              |> Account.write
 
-        {:ok, verified_account}
+            Database.VerifyCode.delete_record(verified_account)
+
+            {:ok, verified_account}
+
+          false ->
+            {:error, "wrong verify code"}
+        end
       end
 
       def get_account(%{account_number: by_account_number}) do
@@ -115,6 +127,45 @@ defdatabase Database do
         rescue
           err -> {:error, err}
         end
+      end
+  end
+
+  deftable VerifyCode, [{:id, autoincrement}, :account_id, :code],
+    type: :set, index: [:account_id] do
+      @type t :: %VerifyCode{
+        id: non_neg_integer,
+        account_id: non_neg_integer,
+        code: String.t
+      }
+
+      def new_record(account, nil) do
+        %VerifyCode{
+          account_id: account.id,
+          code: SecureRandom.urlsafe_base64}
+        |> VerifyCode.write
+      end
+
+      def new_record(account, verify_code) do
+        %VerifyCode{
+          account_id: account.id,
+          code: verify_code}
+        |> VerifyCode.write
+      end
+
+      def delete_record(account) do
+        get_record_by_account(account)
+        |> VerifyCode.delete
+      end
+
+      defp get_record_by_account(account) do
+        where(account_id == account.id)
+        |> Amnesia.Selection.values
+        |> List.first
+      end
+
+      def get_code_by_account(account) do
+        get_record_by_account(account)
+        |> Map.fetch!(:code)
       end
   end
 end
