@@ -70,6 +70,15 @@ defdatabase Database do
         end
       end
 
+      def get_account(%{email: by_email}) do
+        accounts_by_email = where(email == by_email)
+
+        case Amnesia.Selection.values(accounts_by_email) do
+          [account] -> {:ok, account}
+          [] -> {:error, {"account not found", %{email: by_email}}}
+        end
+      end
+      
       def get_account(%{account_number: by_account_number}) do
         accounts_by_account_number = where(account_number == by_account_number)
 
@@ -79,12 +88,10 @@ defdatabase Database do
         end
       end
 
-      def get_account(%{email: by_email}) do
-        accounts_by_email = where(email == by_email)
-
-        case Amnesia.Selection.values(accounts_by_email) do
-          [account] -> {:ok, account}
-          [] -> {:error, {"account not found", %{email: by_email}}}
+      def get_account!(%{account_number: by_account_number}) do
+        case get_account(%{account_number: by_account_number}) do
+          {:ok, account} -> account
+          _ -> raise ArgumentError, message: "account not found"
         end
       end
 
