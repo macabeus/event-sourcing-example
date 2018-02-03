@@ -8,7 +8,8 @@ defmodule EventSourcingExample.Supervisor do
   def init(_args) do
     children = [
       {EventSourcingExample.EventResolver, name: EventSourcingExample.EventResolver},
-      {EventSourcingExample.EventLogger, name: EventSourcingExample.EventLogger}
+      {EventSourcingExample.EventLogger, name: EventSourcingExample.EventLogger},
+      {EventSourcingExample.Bus, name: EventSourcingExample.Bus}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

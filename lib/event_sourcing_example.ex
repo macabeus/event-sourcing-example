@@ -4,6 +4,7 @@ defmodule EventSourcingExample do
   alias EventSourcingExample.Supervisor
   alias EventSourcingExample.EventResolver
   alias EventSourcingExample.EventLogger
+  alias EventSourcingExample.Bus
 
   def start(_type, _args) do
     {:ok, pid} = Supervisor.start_link([])
@@ -11,7 +12,7 @@ defmodule EventSourcingExample do
     # Recover the past state of application
     resolve_result =
       EventLogger.recover_events()
-      |> EventResolver.resolve_many()
+      |> Bus.forward_event([:do_not_log])
 
     case resolve_result do
       :ok ->
