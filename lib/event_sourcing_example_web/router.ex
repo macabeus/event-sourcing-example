@@ -7,5 +7,7 @@ defmodule EventSourcingExampleWeb.Router do
 
   scope "/api", EventSourcingExampleWeb do
     pipe_through :api
+
+    post "/account", AccountController, :post
   end
 end
