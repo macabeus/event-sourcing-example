@@ -36,11 +36,11 @@ defmodule EventSourcingExample.Mail do
     |> from("eventsourcingexample@elixir.com")
   end
 
-  def handle_cast({:send_email_if_need, %NewAccount{email: email, verify_code: verify_code}}, state) do
+  def handle_cast({:send_email_if_need, %NewAccount{email: email, account_number: account_number, verify_code: verify_code}}, state) do
     base_email()
     |> to(email)
     |> subject("[EVENT SOURCING EXAMPLE] Please verify your account")
-    |> text_body("Please verify your account using the code #{verify_code}")
+    |> text_body("Please verify your account using this link: http://0.0.0.0:4000/api/verify?account_number=#{account_number}&code=#{verify_code}")
     |> Mailer.deliver_now
 
     {:noreply, state}

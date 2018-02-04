@@ -9,5 +9,6 @@ defmodule EventSourcingExampleWeb.Router do
     pipe_through :api
 
     post "/account", AccountController, :post
+    get "/verify", VerifyController, :get
   end
 end
