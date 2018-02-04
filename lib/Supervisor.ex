@@ -10,9 +10,12 @@ defmodule EventSourcingExample.Supervisor do
       {EventSourcingExample.EventResolver, name: EventSourcingExample.EventResolver},
       {EventSourcingExample.EventLogger, name: EventSourcingExample.EventLogger},
       {EventSourcingExample.Mail, name: EventSourcingExample.Mail},
-      {EventSourcingExample.Bus, name: EventSourcingExample.Bus}
+      {EventSourcingExample.Bus, name: EventSourcingExample.Bus},
+
+      {EventSourcingExampleWeb.Endpoint, name: EventSourcingExampleWeb.Endpoint}
     ]
 
-    Supervisor.init(children, strategy: :one_for_one)
+    opts = [strategy: :one_for_one, name: EventSourcingExample.Supervisor]
+    Supervisor.init(children, opts)
   end
 end
