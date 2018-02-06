@@ -18,7 +18,7 @@ defmodule EventSourcingExample.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      extra_applications: [:logger, :runtime_tools, :bamboo],
+      extra_applications: [:logger, :runtime_tools, :bamboo, :guardian],
       mod: {EventSourcingExample, []}
     ]
   end
@@ -39,7 +39,10 @@ defmodule EventSourcingExample.Mixfile do
       {:phoenix, "~> 1.3.0"},
       {:phoenix_pubsub, "~> 1.0"},
       {:gettext, "~> 0.11"},
-      {:cowboy, "~> 1.0"}
+      {:cowboy, "~> 1.0"},
+      {:guardian, "~> 1.0"},
+      {:comeonin, "~> 4.0"},
+      {:bcrypt_elixir, "~> 0.12"}
     ]
   end
 end
