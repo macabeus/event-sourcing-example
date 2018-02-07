@@ -4,6 +4,8 @@ import SecureRandom
 
 require OK
 
+alias Comeonin.Bcrypt
+
 defdatabase Database do
   deftable Account, [{:id, autoincrement}, :email, :account_number, :password, :amount, :verified],
     type: :set, index: [:email, :account_number] do
@@ -27,11 +29,12 @@ defdatabase Database do
 
       def create_new_account(email, password) do
         account_number = generate_unique_account_number()
+        hash_password = Bcrypt.hashpwsalt(password)
 
-        create_new_account(email, password, account_number)
+        create_new_account(email, hash_password, account_number)
       end
 
-      def create_new_account(email, password, account_number, verify_code \\ nil) do
+      def create_new_account(email, hash_password, account_number, verify_code \\ nil) do
         # TODO: Send the e-mail to validade this account
 
         with {:error, {"account not found", _}} <- get_account(%{email: email}),
@@ -40,7 +43,7 @@ defdatabase Database do
           new_account = %Account{
             email: email,
             account_number: account_number,
-            password: password,
+            password: hash_password,
             amount: 1_000_00,
             verified: false}
           |> Account.write
@@ -76,6 +79,16 @@ defdatabase Database do
         case Amnesia.Selection.values(accounts_by_email) do
           [account] -> {:ok, account}
           [] -> {:error, {"account not found", %{email: by_email}}}
+        end
+      end
+
+      def get_account(%{account_number: by_account_number, plain_text_password: plain_text_password}) do
+        with {:ok, account} <- get_account(%{account_number: by_account_number}),
+             true <- Bcrypt.checkpw(plain_text_password, account.password)
+        do
+          {:ok, account}
+        else
+          _ -> {:error, {"account not found", %{account_number: by_account_number}}}
         end
       end
 

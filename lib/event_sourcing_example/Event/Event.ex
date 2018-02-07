@@ -25,10 +25,10 @@ defmodule EventSourcingExample.Event do
 
     with {
       :ok,
-      {%Database.Account{account_number: account_number}, %Database.VerifyCode{code: code}}
+      {%Database.Account{password: password_hash, account_number: account_number}, %Database.VerifyCode{code: code}}
     } <- result
     do
-      updated_event = %{event | account_number: account_number, verify_code: code}
+      updated_event = %{event | password: password_hash, account_number: account_number, verify_code: code}
       {:ok, updated_event}
     else
       err -> err
