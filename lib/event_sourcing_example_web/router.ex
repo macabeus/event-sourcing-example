@@ -21,5 +21,6 @@ defmodule EventSourcingExampleWeb.Router do
   scope "/api", EventSourcingExampleWeb do
     pipe_through [:api, :auth]
 
+    post "/money_transfer", BankingController, :money_transfer
   end
 end
