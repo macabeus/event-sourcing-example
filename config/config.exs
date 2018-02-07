@@ -11,6 +11,11 @@ config :event_sourcing_example, EventSourcingExample.Mailer,
   api_key: System.get_env("MAILGUN_API_PRIVATE_KEY"),
   domain: System.get_env("MAILGUN_DOMAIN")
 
+# Configures the Guardian
+config :event_sourcing_example, EventSourcingExampleWeb.Auth.Guardian,
+  issuer: "event_sourcing_example",
+  secret_key: "SMgsNkLXrtQ/2PVNE7EjK9JxjfLPeqYzesZJ73qXnuK+Z6iWSpigQWN1PPFz7Fhy"
+
 # Configures the endpoint
 config :event_sourcing_example, EventSourcingExampleWeb.Endpoint,
   url: [host: "localhost"],
