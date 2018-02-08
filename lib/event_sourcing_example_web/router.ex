@@ -16,6 +16,10 @@ defmodule EventSourcingExampleWeb.Router do
     post "/account", AccountController, :post
     get "/verify", VerifyController, :get
     post "/login", AccountController, :login
+
+    scope "/report" do
+      get "/sum_transactions", ReportController, :sum_transactions
+    end
   end
 
   scope "/api", EventSourcingExampleWeb do
