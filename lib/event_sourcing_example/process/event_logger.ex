@@ -39,8 +39,14 @@ defmodule EventSourcingExample.EventLogger do
     {:ok, {table, counter}}
   end
 
-  def handle_call({:save_event, event}, _from, {table, counter}) do
-    :dets.insert_new(table, {counter, event})
+  def handle_call({:save_event, _event} = request, from, {table, counter}) do
+    timestamp = DateTime.utc_now
+
+    handle_call(request, from, {table, timestamp, counter})
+  end
+
+  def handle_call({:save_event, event}, _from, {table, timestamp, counter}) do
+    :dets.insert_new(table, {counter, timestamp, event})
     :dets.update_counter(table, "counter", 1)
 
     {:reply, :ok, {table, counter + 1}}
@@ -54,7 +60,7 @@ defmodule EventSourcingExample.EventLogger do
     events =
       0..(counter-1)
       |> Enum.map(fn i ->
-        [{_, event}] = :dets.lookup(table, i)
+        [{_index, _timestamp, event}] = :dets.lookup(table, i)
         event
       end)
 
