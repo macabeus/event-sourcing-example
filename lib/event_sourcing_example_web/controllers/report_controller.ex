@@ -1,5 +1,7 @@
 defmodule EventSourcingExampleWeb.ReportController do
+  use Amnesia
   use EventSourcingExampleWeb, :controller
+  use Timex
 
   alias EventSourcingExample.EventLog.SearchTransactions, as: Transactions
   alias EventSourcingExample.Event.MoneyTransfer
@@ -50,5 +52,33 @@ defmodule EventSourcingExampleWeb.ReportController do
         _                              -> &2
       end)
     )
+  end
+
+  def inactive_users(conn, _params) do
+    users_list =
+      Amnesia.transaction(&Database.Account.all/0)
+      |> Enum.map(&(&1.account_number))
+      |> MapSet.new
+
+    users_transactions =
+      Transactions.search(fn(timestamp) ->
+        Timex.after?(timestamp, Timex.shift(Timex.today, months: -1))
+      end)
+      |> Enum.reduce([], &(case &1 do
+        %MoneyTransfer{from_account_number: from_account_number, to_account_number: to_account_number} ->
+          [[from_account_number, to_account_number] | &2]
+
+        %Withdraw{account_number: account_number} ->
+          [account_number | &2]
+
+        _ ->
+          &2
+      end))
+      |> List.flatten
+      |> MapSet.new
+
+    inactives = MapSet.difference(users_list, users_transactions)
+
+    json conn, %{total: MapSet.size(inactives)}
   end
 end

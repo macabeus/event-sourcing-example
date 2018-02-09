@@ -3,6 +3,10 @@ defmodule EventSourcingExample.EventLog.SearchTransactions do
   alias EventSourcingExample.Event.MoneyTransfer
   alias EventSourcingExample.Event.Withdraw
 
+  def search(filter_data_func) when is_function(filter_data_func) do
+    :dets.foldl(&(filter_transactions(filter_data_func, &1, &2)), [], :events_log)
+  end
+
   def search(%{year: year, month: month, day: day}) do
     filter_data_func = fn(timestamp) ->
       case {timestamp.year, timestamp.month, timestamp.day} do

@@ -19,6 +19,7 @@ defmodule EventSourcingExampleWeb.Router do
 
     scope "/report" do
       get "/sum_transactions", ReportController, :sum_transactions
+      get "/inactive_users", ReportController, :inactive_users
     end
   end
 

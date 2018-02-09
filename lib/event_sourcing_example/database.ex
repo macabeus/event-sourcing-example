@@ -162,6 +162,11 @@ defdatabase Database do
           err -> err
         end
       end
+
+      def all() do
+        Account.keys
+        |> Enum.map(&Account.read!/1)
+      end
   end
 
   deftable VerifyCode, [{:id, autoincrement}, :account_id, :code],
