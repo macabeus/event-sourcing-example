@@ -164,8 +164,7 @@ defdatabase Database do
       end
 
       def all() do
-        Account.keys
-        |> Enum.map(&Account.read!/1)
+        Account.foldl([], &([Account.coerce(&1) | &2]))
       end
   end
 
