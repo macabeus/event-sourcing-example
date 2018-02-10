@@ -4,11 +4,13 @@ defmodule EventSourcingExample do
   alias EventSourcingExample.Supervisor
   alias EventSourcingExample.EventLogger
   alias EventSourcingExample.Bus
+  alias EventSourcingExample.Snapshotter
 
   def start(_type, _args) do
     {:ok, pid} = Supervisor.start_link([])
 
     # Recover the past state of application
+    Snapshotter.restore_last_snapshot()
     resolve_result =
       EventLogger.recover_events()
       |> Bus.forward_event([:do_not_log, :do_not_send_email])

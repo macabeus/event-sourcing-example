@@ -15,6 +15,10 @@ defmodule EventSourcingExample.EventLogger do
     GenServer.call(__MODULE__, :recover_events)
   end
 
+  def update_last_snapshot(new_value) do
+    GenServer.call(__MODULE__, {:update_last_snapshot, new_value})
+  end
+
   def view_logs() do
     :ets.new(:events_log_ets, [:set, :protected, :named_table])
     :dets.to_ets(:events_log, :events_log_ets)
@@ -31,39 +35,47 @@ defmodule EventSourcingExample.EventLogger do
   ## Server Callbacks
 
   def init(:ok) do
-    {:ok, table} = :dets.open_file(:events_log, [type: :set])
-    :dets.insert_new(table, {"counter", 0})
+    {:ok, _} = :dets.open_file(:events_log, [type: :set])
+    {:ok, _} = :dets.open_file(:meta_logs, [type: :set])
 
-    [{"counter", counter}] = :dets.lookup(table, "counter")
+    :dets.insert_new(:meta_logs, {"events_counter", 0})
+    :dets.insert_new(:meta_logs, {"last_snapshot", 0})
 
-    {:ok, {table, counter}}
+    [{"events_counter", events_counter}] = :dets.lookup(:meta_logs, "events_counter")
+    [{"last_snapshot", last_snapshot}] = :dets.lookup(:meta_logs, "last_snapshot")
+
+    {:ok, {events_counter, last_snapshot}}
   end
 
-  def handle_call({:save_event, _event} = request, from, {table, counter}) do
+  def handle_call({:save_event, event}, _from, {events_counter, last_snapshot}) do
     timestamp = DateTime.utc_now
 
-    handle_call(request, from, {table, timestamp, counter})
+    :dets.insert_new(:events_log, {events_counter, timestamp, event})
+    :dets.update_counter(:meta_logs, "events_counter", 1)
+
+    events_counter = events_counter + 1
+
+    {:reply, {:ok, events_counter}, {events_counter, last_snapshot}}
   end
 
-  def handle_call({:save_event, event}, _from, {table, timestamp, counter}) do
-    :dets.insert_new(table, {counter, timestamp, event})
-    :dets.update_counter(table, "counter", 1)
-
-    {:reply, :ok, {table, counter + 1}}
-  end
-
-  def handle_call(:recover_events, _from, {_table, 0} = state) do
+  def handle_call(:recover_events, _from, {0, _last_snapshot} = state) do
     {:reply, [], state}
   end
 
-  def handle_call(:recover_events, _from, {table, counter} = state) do
+  def handle_call(:recover_events, _from, {events_counter, last_snapshot} = state) do
     events =
-      0..(counter-1)
+      last_snapshot..(events_counter-1)
       |> Enum.map(fn i ->
-        [{_index, _timestamp, event}] = :dets.lookup(table, i)
+        [{_index, _timestamp, event}] = :dets.lookup(:events_log, i)
         event
       end)
 
     {:reply, events, state}
+  end
+
+  def handle_call({:update_last_snapshot, new_value}, _from, {events_counter, _last_snapshot}) do
+    :dets.insert(:meta_logs, {"last_snapshot", new_value})
+
+    {:reply, :ok, {events_counter, new_value}}
   end
 end

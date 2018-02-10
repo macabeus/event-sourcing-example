@@ -4,6 +4,7 @@ defmodule EventSourcingExample.Bus do
   alias EventSourcingExample.EventResolver
   alias EventSourcingExample.EventLogger
   alias EventSourcingExample.Mail
+  alias EventSourcingExample.Snapshotter
 
   ## Client API
 
@@ -24,7 +25,8 @@ defmodule EventSourcingExample.Bus do
   defp run_event(event, opts) do
     with {:ok, event_result} <- EventResolver.resolve(event) do
       if (Enum.member?(opts, :do_not_log) == false) do
-        EventLogger.save_event(event_result)
+        {:ok, events_counter} = EventLogger.save_event(event_result)
+        Snapshotter.take_snapshot_if_need(events_counter)
       end
 
       if (Enum.member?(opts, :do_not_send_email) == false) do
