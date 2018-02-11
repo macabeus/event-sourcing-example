@@ -63,14 +63,18 @@ defmodule EventSourcingExample.EventLogger do
   end
 
   def handle_call(:recover_events, _from, {events_counter, last_snapshot} = state) do
-    events =
-      last_snapshot..(events_counter-1)
-      |> Enum.map(fn i ->
-        [{_index, _timestamp, event}] = :dets.lookup(:events_log, i)
-        event
-      end)
+    if last_snapshot > (events_counter-1) do
+      {:reply, [], state}
+    else
+      events =
+        (last_snapshot)..(events_counter-1)
+        |> Enum.map(fn i ->
+          [{_index, _timestamp, event}] = :dets.lookup(:events_log, i)
+          event
+        end)
 
-    {:reply, events, state}
+      {:reply, events, state}
+    end
   end
 
   def handle_call({:update_last_snapshot, new_value}, _from, {events_counter, _last_snapshot}) do
