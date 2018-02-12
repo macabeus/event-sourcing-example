@@ -37,11 +37,17 @@ Then, create the database:
 > mix amnesia.create -d Database --memory
 ```
 
-Create an account on [Mailgun](https://www.mailgun.com/) (it's free!) and set your private key and domain
+Create an account on [Mailgun](https://www.mailgun.com/) (it's free!) and set your private key and domain:
 
 ```
 > export MAILGUN_API_PRIVATE_KEY=key-e00000aa0aa00000a000aa00a000aa00
 > export MAILGUN_DOMAIN=sandbox00aa00000a000000a0e0a000000000aa.mailgun.org
+```
+
+Test if everything is ok:
+
+```
+> mix test
 ```
 
 Then, start the Phoenix API:
@@ -52,7 +58,7 @@ Then, start the Phoenix API:
 
 [You can read the API doc on Postman.](https://documenter.getpostman.com/view/1363558/event-sourcing-example/RVftksGU)
 
-Maybe you want view the events recorded. You can see it using
+Maybe you want view the events recorded. You can see it using:
 
 ```
 > iex -S mix
