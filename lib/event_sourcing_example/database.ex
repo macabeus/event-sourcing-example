@@ -1,7 +1,5 @@
 use Amnesia
 
-import SecureRandom
-
 alias Comeonin.Bcrypt
 
 defdatabase Database do

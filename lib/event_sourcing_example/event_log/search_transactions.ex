@@ -1,5 +1,4 @@
 defmodule EventSourcingExample.EventLog.SearchTransactions do
-  alias EventSourcingExample.Event.NewAccount
   alias EventSourcingExample.Event.MoneyTransfer
   alias EventSourcingExample.Event.Withdraw
 

@@ -7,7 +7,7 @@ defmodule EventSourcingExample.Snapshotter do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 
-  def take_snapshot_if_need(events_counter, opts \\ []) do
+  def take_snapshot_if_need(events_counter, _opts \\ []) do
     GenServer.call(__MODULE__, {:take_snapshot_if_need, events_counter})
   end
 
@@ -19,6 +19,13 @@ defmodule EventSourcingExample.Snapshotter do
 
   def init(:ok) do
     {:ok, :state_doesnt_matter}
+  end
+
+  defp needs_a_new_snapshot?(events_counter) do
+    case rem(events_counter, 5) do
+      0 -> true
+      _ -> false
+    end
   end
 
   def handle_call({:take_snapshot_if_need, events_counter}, _from, state) do
@@ -37,13 +44,6 @@ defmodule EventSourcingExample.Snapshotter do
 
       false ->
         {:reply, :ok, state}
-    end
-  end
-
-  defp needs_a_new_snapshot?(events_counter) do
-    case rem(events_counter, 5) do
-      0 -> true
-      _ -> false
     end
   end
 
