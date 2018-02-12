@@ -9,18 +9,26 @@ defmodule EventSourcingExample do
   def start(_type, _args) do
     {:ok, pid} = Supervisor.start_link([])
 
-    # Recover the past state of application
-    Snapshotter.restore_last_snapshot()
-    resolve_result =
-      EventLogger.recover_events()
-      |> Bus.forward_event([:do_not_log, :do_not_send_email])
+    recover_events =
+      if recover_previous_state?() do
+        Snapshotter.restore_last_snapshot()
 
-    case resolve_result do
+        EventLogger.recover_events()
+        |> Bus.forward_event([:do_not_log, :do_not_send_email])
+      else
+        :ok
+      end
+
+    case recover_events do
       :ok ->
         {:ok, pid}
 
       {:error, recover_error} ->
         {:error, {"Some error happened when tried recover the state!", recover_error}}
     end
+  end
+
+  def recover_previous_state? do
+    Application.get_env(:event_sourcing_example, EventSourcingExample, :recover_previous_state)[:recover_previous_state]
   end
 end

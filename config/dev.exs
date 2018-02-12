@@ -1,5 +1,8 @@
 use Mix.Config
 
+config :event_sourcing_example, EventSourcingExample,
+  recover_previous_state: true
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #

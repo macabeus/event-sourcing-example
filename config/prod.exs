@@ -1,5 +1,8 @@
 use Mix.Config
 
+config :event_sourcing_example, EventSourcingExample,
+  recover_previous_state: true
+
 # For production, we often load configuration from external
 # sources, such as your system environment. For this reason,
 # you won't find the :http configuration below, but set inside
@@ -15,8 +18,7 @@ use Mix.Config
 # which you typically run after static files are built.
 config :event_sourcing_example, EventSourcingExampleWeb.Endpoint,
   load_from_system_env: true,
-  url: [host: "example.com", port: 80],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  url: [host: "example.com", port: 80]
 
 # Do not print debug messages in production
 config :logger, level: :info
