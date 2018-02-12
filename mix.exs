@@ -33,7 +33,6 @@ defmodule EventSourcingExample.Mixfile do
   defp deps do
     [
       {:amnesia, "~> 0.2.7"},
-      {:ok, "~> 1.9"},
       {:bamboo, "~> 0.8"},
       {:secure_random, "~> 0.5"},
       {:phoenix, "~> 1.3.0"},

@@ -2,8 +2,6 @@ use Amnesia
 
 import SecureRandom
 
-require OK
-
 alias Comeonin.Bcrypt
 
 defdatabase Database do
@@ -129,13 +127,12 @@ defdatabase Database do
       end
 
       def money_transfer(from_account_number, to_account_number, amount) do
-        OK.try do
-          from_account <- get_account(%{account_number: from_account_number})
-          true         <- check_money(from_account, amount)
-          to_account   <- get_account(%{account_number: to_account_number})
-          true         <- check_verified(from_account)
-          true         <- check_verified(to_account)
-        after
+        with {:ok, from_account} <- get_account(%{account_number: from_account_number}),
+             {:ok, true}         <- check_money(from_account, amount),
+             {:ok, to_account}   <- get_account(%{account_number: to_account_number}),
+             {:ok, true}         <- check_verified(from_account),
+             {:ok, true}         <- check_verified(to_account)
+        do
           from_account_new_amount =
             %{from_account | amount: from_account.amount - amount}
             |> Account.write
@@ -144,8 +141,8 @@ defdatabase Database do
           |> Account.write
 
           {:ok, from_account_new_amount}
-        rescue
-          err -> {:error, err}
+        else
+          err -> err
         end
       end
 
