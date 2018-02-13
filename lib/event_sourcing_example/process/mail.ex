@@ -24,6 +24,10 @@ defmodule EventSourcingExample.Mail do
     {:ok, :state_doesnt_matter}
   end
 
+  defp get_url() do
+    EventSourcingExampleWeb.Endpoint.url()
+  end
+
   defp get_email(account_number) do
     Amnesia.transaction do
       account = Database.Account.get_account!(%{account_number: account_number})
@@ -40,7 +44,7 @@ defmodule EventSourcingExample.Mail do
     base_email()
     |> to(email)
     |> subject("[EVENT SOURCING EXAMPLE] Please verify your account")
-    |> text_body("Please verify your account using this link: http://0.0.0.0:4000/api/verify?account_number=#{account_number}&code=#{verify_code}")
+    |> text_body("Please verify your account using this link: #{get_url()}/api/verify?account_number=#{account_number}&code=#{verify_code}")
     |> Mailer.deliver_now
 
     {:noreply, state}
