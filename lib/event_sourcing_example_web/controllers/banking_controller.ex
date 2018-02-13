@@ -5,14 +5,21 @@ defmodule EventSourcingExampleWeb.BankingController do
   alias EventSourcingExample.Event.MoneyTransfer
   alias EventSourcingExample.Event.Withdraw
 
-  def money_transfer(%{private: %{auth: %{user: account}}} = conn, %{"to_account_number" => to_account_number, "amount" => amount}) do
+  def money_transfer(%{private: %{auth: %{user: account}}} = conn, %{
+        "to_account_number" => to_account_number,
+        "amount" => amount
+      }) do
     event_result =
-      %MoneyTransfer{from_account_number: account.account_number, to_account_number: to_account_number, amount: amount}
+      %MoneyTransfer{
+        from_account_number: account.account_number,
+        to_account_number: to_account_number,
+        amount: amount
+      }
       |> Bus.forward_event()
 
     case event_result do
       {:ok, _} ->
-        json conn, "ok"
+        json(conn, "ok")
 
       {:error, {message, _}} ->
         conn
@@ -28,7 +35,7 @@ defmodule EventSourcingExampleWeb.BankingController do
 
     case event_result do
       {:ok, _} ->
-        json conn, "ok"
+        json(conn, "ok")
 
       {:error, {message, _}} ->
         conn

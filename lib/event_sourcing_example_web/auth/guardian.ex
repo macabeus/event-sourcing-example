@@ -8,9 +8,11 @@ defmodule EventSourcingExampleWeb.Auth.Guardian do
 
   def resource_from_claims(claims) do
     account_id = claims["sub"]
-    account = Amnesia.transaction do
-      Database.Account.read(account_id)
-    end
+
+    account =
+      Amnesia.transaction do
+        Database.Account.read(account_id)
+      end
 
     {:ok, account}
   end

@@ -36,26 +36,37 @@ defmodule EventSourcingExample.Mail do
   end
 
   defp base_email() do
-    Bamboo.Email.new_email
+    Bamboo.Email.new_email()
     |> from("eventsourcingexample@elixir.com")
   end
 
-  def handle_cast({:send_email_if_need, %NewAccount{email: email, account_number: account_number, verify_code: verify_code}}, state) do
+  def handle_cast(
+        {:send_email_if_need,
+         %NewAccount{email: email, account_number: account_number, verify_code: verify_code}},
+        state
+      ) do
     base_email()
     |> to(email)
     |> subject("[EVENT SOURCING EXAMPLE] Please verify your account")
-    |> text_body("Please verify your account using this link: #{get_url()}/api/verify?account_number=#{account_number}&code=#{verify_code}")
-    |> Mailer.deliver_now
+    |> text_body(
+      "Please verify your account using this link: #{get_url()}/api/verify?account_number=#{
+        account_number
+      }&code=#{verify_code}"
+    )
+    |> Mailer.deliver_now()
 
     {:noreply, state}
   end
 
-  def handle_cast({:send_email_if_need, %Withdraw{account_number: account_number, amount: amount}}, state) do
+  def handle_cast(
+        {:send_email_if_need, %Withdraw{account_number: account_number, amount: amount}},
+        state
+      ) do
     base_email()
     |> to(get_email(account_number))
     |> subject("[EVENT SOURCING EXAMPLE] Withdraw")
     |> text_body("You did withdraw #{amount}")
-    |> Mailer.deliver_now
+    |> Mailer.deliver_now()
 
     {:noreply, state}
   end

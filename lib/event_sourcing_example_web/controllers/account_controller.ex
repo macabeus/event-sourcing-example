@@ -14,7 +14,7 @@ defmodule EventSourcingExampleWeb.AccountController do
 
     case event_result do
       {:ok, new_account} ->
-        json conn, %{account_number: new_account.account_number}
+        json(conn, %{account_number: new_account.account_number})
 
       {:error, message} ->
         conn
@@ -24,14 +24,17 @@ defmodule EventSourcingExampleWeb.AccountController do
   end
 
   def login(conn, %{"account_number" => account_number, "password" => password}) do
-    get_account_result = Amnesia.transaction do
-      Database.Account.get_account(%{account_number: account_number, plain_text_password: password})
-    end
+    get_account_result =
+      Amnesia.transaction do
+        Database.Account.get_account(%{
+          account_number: account_number,
+          plain_text_password: password
+        })
+      end
 
-    with {:ok, account}  <- get_account_result,
-         {:ok, token, _} <- Guardian.encode_and_sign(account)
-    do
-      json conn, %{token: token}
+    with {:ok, account} <- get_account_result,
+         {:ok, token, _} <- Guardian.encode_and_sign(account) do
+      json(conn, %{token: token})
     else
       err ->
         conn

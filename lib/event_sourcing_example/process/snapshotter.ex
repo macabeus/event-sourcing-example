@@ -36,6 +36,7 @@ defmodule EventSourcingExample.Snapshotter do
           max: [Database.Account, Database.VerifyCode, Database],
           override: true
         })
+
         Amnesia.Backup.start('snapshot', 'snapshot')
 
         EventSourcingExample.EventLogger.update_last_snapshot(events_counter)

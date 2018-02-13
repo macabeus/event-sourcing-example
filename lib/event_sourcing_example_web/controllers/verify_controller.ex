@@ -11,7 +11,7 @@ defmodule EventSourcingExampleWeb.VerifyController do
 
     case event_result do
       {:ok, _verify_result} ->
-        json conn, "ok"
+        json(conn, "ok")
 
       {:error, {message, _}} ->
         conn

@@ -29,6 +29,8 @@ defmodule EventSourcingExample do
   end
 
   def recover_previous_state? do
-    Application.get_env(:event_sourcing_example, EventSourcingExample, :recover_previous_state)[:recover_previous_state]
+    Application.get_env(:event_sourcing_example, EventSourcingExample, :recover_previous_state)[
+      :recover_previous_state
+    ]
   end
 end

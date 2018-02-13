@@ -5,7 +5,7 @@ defmodule EventSourcingExampleWeb.Auth.CurrentUser do
 
   def call(conn, _) do
     case Guardian.Plug.current_resource(conn) do
-      nil  -> conn
+      nil -> conn
       user -> put_private(conn, :auth, %{user: user})
     end
   end

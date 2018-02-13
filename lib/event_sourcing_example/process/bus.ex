@@ -24,12 +24,12 @@ defmodule EventSourcingExample.Bus do
 
   defp run_event(event, opts) do
     with {:ok, event_result} <- EventResolver.resolve(event) do
-      if (Enum.member?(opts, :do_not_log) == false) do
+      if Enum.member?(opts, :do_not_log) == false do
         {:ok, events_counter} = EventLogger.save_event(event_result)
         Snapshotter.take_snapshot_if_need(events_counter)
       end
 
-      if (Enum.member?(opts, :do_not_send_email) == false) do
+      if Enum.member?(opts, :do_not_send_email) == false do
         Mail.send_email_if_need(event_result)
       end
 
@@ -44,17 +44,18 @@ defmodule EventSourcingExample.Bus do
   end
 
   def handle_call({:forward_event, events, opts}, _from, state) when is_list(events) do
-    resolve_result = events
-      |> Enum.map(&(
-        case run_event(&1, opts) do
+    resolve_result =
+      events
+      |> Enum.map(
+        &case run_event(&1, opts) do
           {:ok, _} -> :ok
           {:error, message} -> {message, &1}
-        end))
-      |> Enum.uniq
+        end
+      )
+      |> Enum.uniq()
 
-    with 1   <- length(resolve_result),
-         :ok <- List.first(resolve_result)
-    do
+    with 1 <- length(resolve_result),
+         :ok <- List.first(resolve_result) do
       {:reply, :ok, state}
     else
       _ ->

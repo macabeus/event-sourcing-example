@@ -23,20 +23,38 @@ defmodule EventSourcingExample.EventLogger do
     :ets.new(:events_log_ets, [:set, :protected, :named_table])
     :dets.to_ets(:events_log, :events_log_ets)
 
-    :observer.start
+    :observer.start()
 
-    IO.puts IO.ANSI.format([
-      :green, :bright, "Observer started.\n",
-      :black, :normal, "Go to the ", :blue, "\"Table Viewer\"", :black, " and double-click on ", :blue, "\"events_log_ets\"", :black, " to seen the content.\n",
-      "When you close the Observer, remember to use ", :blue, "\":ets.delete(:events_log_ets)\"", :black, " command."
-    ])
+    IO.puts(
+      IO.ANSI.format([
+        :green,
+        :bright,
+        "Observer started.\n",
+        :black,
+        :normal,
+        "Go to the ",
+        :blue,
+        "\"Table Viewer\"",
+        :black,
+        " and double-click on ",
+        :blue,
+        "\"events_log_ets\"",
+        :black,
+        " to seen the content.\n",
+        "When you close the Observer, remember to use ",
+        :blue,
+        "\":ets.delete(:events_log_ets)\"",
+        :black,
+        " command."
+      ])
+    )
   end
 
   ## Server Callbacks
 
   def init(:ok) do
-    {:ok, _} = :dets.open_file(:events_log, [type: :set])
-    {:ok, _} = :dets.open_file(:meta_logs, [type: :set])
+    {:ok, _} = :dets.open_file(:events_log, type: :set)
+    {:ok, _} = :dets.open_file(:meta_logs, type: :set)
 
     :dets.insert_new(:meta_logs, {"events_counter", 0})
     :dets.insert_new(:meta_logs, {"last_snapshot", 0})
@@ -48,7 +66,7 @@ defmodule EventSourcingExample.EventLogger do
   end
 
   def handle_call({:save_event, event}, _from, {events_counter, last_snapshot}) do
-    timestamp = DateTime.utc_now
+    timestamp = DateTime.utc_now()
 
     :dets.insert_new(:events_log, {events_counter, timestamp, event})
     :dets.update_counter(:meta_logs, "events_counter", 1)
@@ -63,11 +81,11 @@ defmodule EventSourcingExample.EventLogger do
   end
 
   def handle_call(:recover_events, _from, {events_counter, last_snapshot} = state) do
-    if last_snapshot > (events_counter-1) do
+    if last_snapshot > events_counter - 1 do
       {:reply, [], state}
     else
       events =
-        (last_snapshot)..(events_counter-1)
+        last_snapshot..(events_counter - 1)
         |> Enum.map(fn i ->
           [{_index, _timestamp, event}] = :dets.lookup(:events_log, i)
           event

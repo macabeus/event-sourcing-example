@@ -12,7 +12,6 @@ defmodule EventSourcingExample.Supervisor do
       {EventSourcingExample.Mail, name: EventSourcingExample.Mail},
       {EventSourcingExample.Bus, name: EventSourcingExample.Bus},
       {EventSourcingExample.Snapshotter, name: EventSourcingExample.Snapshotter},
-
       {EventSourcingExampleWeb.Endpoint, name: EventSourcingExampleWeb.Endpoint}
     ]
 
