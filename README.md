@@ -11,7 +11,7 @@ In an event sourcing application, each change of the state is made by an "event"
 
 The event log is a very useful feature of this architecture, because we'll have a strong audit capability to check if something weird happened, and we can explore alternative histories by injecting hypothetical events.
 
-Since we can rebuild the state of application reliably, we can work using an in-memmory database to store the current state. The advantage of an in-memmory database is the high performance, since everything is being done in-memory with no IO or remote calls to database systems.
+Since we can rebuild the state of application reliably, we can work using an in-memory database to store the current state. The advantage of an in-memory database is the high performance, since everything is being done in-memory with no IO or remote calls to database systems.
 
 To learn more about event sourcing:
 * **Talk:** [GOTO 2017 - The Many Meanings of Event-Driven Architecture - Martin Fowler](https://www.youtube.com/watch?v=STKCRSUsyP0)
@@ -95,7 +95,7 @@ Furthermore, two processes send an e-mail: NewAccount, that sends a link to veri
 
 ## Database
 
-We have two databases: Amnesia (Elixir wrapper of Mnesia) and DETS. One of the greatest points of event sourcing is the preference of in-memmory database, and Mnesia is an in-memmory database built-in Erlang. Mnesia is an oriented document store, but, for a bank system, it is better to use a relational database to store the accounts, transactions... Then, the Amnesia gives a flavour for Mnesia, also gives a better semantic on Elixir code. In order to store the events, I chose DETS, because using it is possible to store and retrive a struct easily.
+We have two databases: Amnesia (Elixir wrapper of Mnesia) and DETS. One of the greatest points of event sourcing is the preference of in-memory database, and Mnesia is an in-memory database built-in Erlang. Mnesia is an oriented document store, but, for a bank system, it is better to use a relational database to store the accounts, transactions... Then, the Amnesia gives a flavour for Mnesia, also gives a better semantic on Elixir code. In order to store the events, I chose DETS, because using it is possible to store and retrive a struct easily.
 
 The function of Snapshotter process is to create a copy of Mnesia tables every time 5 events are resolved and save the copy on disk, in order to, when we need to restore the previous state of the application, we don't need to resolve each event again.
 
