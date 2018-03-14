@@ -70,7 +70,7 @@ Maybe you want to view the events recorded. You can see it using:
 Since this is a project for studying purposes, I'll explain how I created this project, the logic and design.
 
 <p align="center">
-  <img src="https://i.imgur.com/5B5pJc1.png">
+  <img src="https://i.imgur.com/fld5Jxh.png">
 </p>
 
 ## Process and bus pipeline
