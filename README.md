@@ -14,6 +14,7 @@ The event log is a very useful feature of this architecture, because we'll have 
 Since we can rebuild the state of application reliably, we can work using an in-memory database to store the current state. The advantage of an in-memory database is the high performance, since everything is being done in-memory with no IO or remote calls to database systems.
 
 To learn more about event sourcing:
+* **Talk:** I presented about this architecture and this example project at a meetup. You can see [the talk video here](https://youtu.be/tixWGkkZbXE) and [the slides here](https://speakerdeck.com/macabeus/event-sourcing-architecture-using-elixir).
 * **Talk:** [GOTO 2017 - The Many Meanings of Event-Driven Architecture - Martin Fowler](https://www.youtube.com/watch?v=STKCRSUsyP0)
 * **Blogpost:** [What do you mean by "Event-Driven"? - Martin Fowler](https://martinfowler.com/articles/201701-event-driven.html)
 * **Talk (Brazillian Portuguese):** [CQRS/ES com Elixir - Bernardo Amorim](https://pt-br.eventials.com/locaweb/cqrs-es-com-elixir-com-bernardo-amorim/)
